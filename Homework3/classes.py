@@ -63,7 +63,7 @@ class YoutubeThing:
         """
         DESCRIPTION
             Prints search results from getSearchResults() to screen.
-.
+
         PARAMETERS
             data - (str) response from getSearchResults() or another query
 

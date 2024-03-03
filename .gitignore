@@ -159,5 +159,10 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+# BigDataTools_Spring2024
+Homework3/dump.rdb
 Homework3/config.yaml
+Homework3/temp.json
+Homework3/temp.png
 .DS_Store
+dump.rdb

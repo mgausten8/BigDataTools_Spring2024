@@ -1,46 +1,51 @@
 """
-YouTube's Favorite Superhero
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+********************************************************************
+YouTube Search Term Stats
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Author: Matt Austen
 Class:  Big Data Tools
 Prof:   Prof. Ganesh
 Assgn:  Homework 3
 Date:   03/03/2024
-
-DESCRIPTION
-    This application utilizes the YouTube Data API v3 to perform search queries 
-    on specific superhero names and extract statistics pertaining to the Top N
-    (where N is defined by the user) search results. These results include (1)
-    the number of comments, (2) the number of views, and (3) the number of likes.
-    These statistics are then used to infer 'YouTube's Favorite Superhero'.
+********************************************************************
 """
 
-# Define which superheros to search in YouTube search bar
-SUPERHEROES = ['captain america', 'iron man']#, 'hulk', 'thor']
+# Define which SEARCH_TERMS to search in YouTube search bar
+SEARCH_TERMS = ['captain america', 'iron man', 'hulk', 'thor']
 
 # Define number of values that will be basis for analysis
-NUM_VIDEOS  = 2
+NUM_VIDEOS = 10
 
 # Development flags - use these to toggle certain sections of code on/off
-STEP_1 = False
-STEP_2 = False
-STEP_3 = True
+USE_API   = False
+USE_REDIS = False
+
+print('********************************************************************')
+print('HOMEWORK 3')
+print('Matt Austen')
+print(f'Big Data Tools - Spring 2024\n')
+print('This application will...')
+print(f'  Utilize the "YouTube Data API v3" to get the top {NUM_VIDEOS}') 
+print(f'  videos from the following search terms:\n  {SEARCH_TERMS}.')
+print(f'  It will then aggregate the data into plots and statistics.\n')
 
 
-##### Step 1: Read JSON from API ###############################
+##### Step 1: Read JSON from API ###################################
+
+print(f'STEP 1: Obtain data via YouTube Data API v3...', end='')
 
 import classes
 import json
 
-if STEP_1==True:
+if USE_API==True:
     # Instantiate YoutubeThing object
     yt = classes.YoutubeThing()
 
     ### Print first <NUM_VIDEOS> videos for each 
-    allStats = {'superhero': [], 'title': [], 'num_comments': [], 'num_likes': [], 'num_views': []}
-    for superhero in SUPERHEROES:
-        search_results = yt.getSearchResults(superhero, NUM_VIDEOS)
+    allStats = {'search_term': [], 'title': [], 'num_comments': [], 'num_likes': [], 'num_views': []}
+    for search_term in SEARCH_TERMS:
+        search_results = yt.getSearchResults(search_term, NUM_VIDEOS)
 
         # Store video info
         items = search_results.get('items')
@@ -48,99 +53,124 @@ if STEP_1==True:
             video_id = item['id']['videoId']
             data = yt.getVideoDetails(video_id)
 
+            #print(data['items'][0]['statistics'])
+
+            # Extract desired stats from API call
             title        = data['items'][0]['snippet']['title']
             num_comments = data['items'][0]['statistics']['commentCount']
             num_likes    = data['items'][0]['statistics']['likeCount']
             num_views    = data['items'][0]['statistics']['viewCount']
+            
+            # Append stats to output dict
+            allStats['search_term'].append(search_term)
+            allStats['title'].append(title)
+            allStats['num_comments'].append(num_comments)
+            allStats['num_likes'].append(num_likes)
+            allStats['num_views'].append(num_views)
+
+    # Convert stats dict to JSON
+    stats = json.dumps(allStats, indent=4)
+
+    # Output to file to reduce API calls when testing
+    with open('temp.json', 'w') as outfile:
+        outfile.write(stats)
+
+    print('Success!')
+else:
+    print(f'Using pre-generated API data instead...', end='')
+
+    # Load from most recent API call to avoid maxing API quota
+    f = open('temp.json')
+    stats = json.dumps(json.load(f), indent=4)
+
+    print('Success!')
 
 
-            allStats['superhero'].extend(superhero)
-            allStats['title'].extend(title)
-            allStats['num_comments'].extend(num_comments)
-            allStats['num_likes'].extend(num_likes)
-            allStats['num_views'].extend(num_views)
-            '''
-            stats = {'superhero': superhero, 
-                     'title': title, 
-                     'num_comments': num_comments, 
-                     'num_likes': num_likes, 
-                     'num_views': num_views}
-            allStats.extend(stats)
-            '''
-            #print(allStats)
+##### Step 2: Insert into RedisJSON ################################
 
+print(f'STEP 2: Insert JSON data into Redis...', end='')
 
-    json_stats = json.dumps(allStats, indent=4)
-    print(json_stats)
+import config as cfg
 
-
-##### Step 2: Insert into RedisJSON ############################
-
-import redis
-
-if STEP_2==True:
+if USE_REDIS==True:
     # Establish Redis connection
     redis_conn = cfg.getRedisConnection()
 
     # Insert data into Redis
-    redis_conn.set('youtube:stats:Mangs1337', response)
+    redis_conn.set('youtube:stats:hw3', stats)
 
     # Extract data from redis
-    json_data = redis_conn.get('youtube:stats:Mangs1337')
+    data_json = redis_conn.get('youtube:stats:hw3')
 
-    print(json_data)
+    print('Success!')
+else:
+    data_json = stats
+
+    print('Skipping.')
 
 
-##### Step 3: Output processing ################################
+##### Step 3: Output processing ####################################
+
+print('STEP 3: Generate outputs! (see below)')
 
 import pandas as pd
 import matplotlib.pyplot as plt 
 
-if STEP_3==True:
-    # Obtain data
-    if STEP_1==False and STEP_2==False:
-        import random
+# Load JSON data into dictionary
+data_dict = json.loads(data_json)
 
-        print('WARNING! API not being called. Using dummy data...')
-        dummy_data = {'superhero': ['captain america', 'iron man', 'hulk', 'thor'],
-                      'title': ['NA', 'NA', 'NA', 'NA'],
-                      'num_comments': random.sample(range(1, 100), 4),
-                      'num_likes': random.sample(range(1, 100), 4),
-                      'num_views': random.sample(range(1, 100), 4)}
+# Convert dictionary to pandas dataframe
+df = pd.DataFrame.from_dict(data_dict)
+df = df.drop(columns='title')
 
-        data = dummy_data
-    elif STEP_1==False:
-        print('WARNING! API not being called. Getting data from Redis...')
-    elif STEP_2==False:
-        print('WARNING! Calling API but bypassing Redis...')
-    else:
-        # Use API data from Redis (normal)
-        pass
+# Convert numeric data to numeric data-type
+df[['num_comments', 'num_likes', 'num_views']] = df[['num_comments', 'num_likes', 'num_views']].apply(pd.to_numeric)
 
-    # Convert data to pandas dataframe
-    data_pd = pd.DataFrame.from_dict(data)
+# Aggregate average data
+df_avg = df.groupby('search_term').aggregate('mean').reset_index()
+df_sum = df.groupby('search_term').aggregate('sum').reset_index()
 
-    data_pd.plot(x='superhero', y=['num_comments', 'num_likes', 'num_views'], kind='bar') 
-    plt.show()
+# Adjust font sizes for plot
+SMALL_SIZE = 8
+MEDIUM_SIZE = 10
+BIGGER_SIZE = 12
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
+# Plot Average aggregated data
+plt.figure().set_figwidth(15)
+fig,(ax1,ax2,ax3) = plt.subplots(1, 3)
+ax1.bar(df_avg['search_term'], df_avg['num_comments'])
+ax1.set_title(f'Avg Comments over Top {NUM_VIDEOS} Search Results')
+ax2.bar(df_avg['search_term'], df_avg['num_likes'])
+ax2.set_title(f'Avg Likes over Top {NUM_VIDEOS} Search Results')
+ax3.bar(df_avg['search_term'], df_avg['num_views'])
+ax3.set_title(f'Avg Views over Top {NUM_VIDEOS} Search Results')
+fig.set_figwidth(15)
+fig.savefig('temp.png')
 
-    #print(data_pd)
+# Output #1: Aggregated dataframes
+print(f'\nOUTPUT #1: Aggregated dataframes')
+print(df_avg)
+print(df_sum)
 
+# Output #2: 
+print(f'\nOUTPUT #2: Search term superlatives')
+most_talked_about = df_sum['search_term'].iloc[[df_sum['num_comments'].idxmax()]].tolist()[0].upper()
+most_liked = df_sum['search_term'].iloc[[df_sum['num_likes'].idxmax()]].tolist()[0].upper()
+most_viewed = df_sum['search_term'].iloc[[df_sum['num_views'].idxmax()]].tolist()[0].upper()
+print(f'  Most talked about search term: {most_talked_about}')
+print(f'  Most liked search term: {most_liked}')
+print(f'  Most viewed search term: {most_viewed}')
 
+# Output #3: Bar chart
+print(f'\nOUTPUT #3: Bar chart')
+print('  Bar chart saved to "temp.png".')
 
-'''
-response = json.dumps(
-    request.execute(), 
-    indent=4
-    )'''
+print('********************************************************************')
 
-'''
-request2 = youtube.comments().list(
-    part='snippet',
-    parentId=channel_id
-    )
-response2 = json.dumps(
-    request2.execute(),
-    indent=4
-    )
-'''
