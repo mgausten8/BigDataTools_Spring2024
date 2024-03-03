@@ -15,11 +15,11 @@ Date:   03/03/2024
 SEARCH_TERMS = ['captain america', 'iron man', 'hulk', 'thor']
 
 # Define number of values that will be basis for analysis
-NUM_VIDEOS = 10
+NUM_VIDEOS = 8
 
 # Development flags - use these to toggle certain sections of code on/off
-USE_API   = False
-USE_REDIS = False
+USE_API   = True
+USE_REDIS = True
 
 print('********************************************************************')
 print('HOMEWORK 3')
