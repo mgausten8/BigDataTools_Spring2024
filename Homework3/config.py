@@ -2,10 +2,12 @@ import redis
 import yaml
 
 def loadConfig():
-    '''Load configuration from the YAML file.
+    '''
+    DESCRIPTION
+        Load configuration from the YAML file.
 
-    Returns:
-        dict: Configuration data.
+    OUTPUTS
+        (dict) configuration data
     '''
     with open('config.yaml', 'r') as file:
         return yaml.safe_load(file)
@@ -13,10 +15,12 @@ def loadConfig():
 config = loadConfig()
 
 def getRedisConnection():
-    '''Create a Redis connection using the configuration.
+    '''
+    DESCRIPTION
+        Create a Redis connection using the configuration.
 
-    Returns:
-        Redis: Redis connection object.
+    OUTPUTS:
+        (redis obj) Redis connection object
     '''
     return redis.Redis(
         port=6379,
