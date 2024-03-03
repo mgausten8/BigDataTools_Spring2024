@@ -2,10 +2,11 @@ import config
 from googleapiclient.discovery import build
 import json
 
+# Load configuration to get API key
 cfg = config.loadConfig()
 
 class YoutubeThing:
-    '''
+    """
     DESCRIPTION
         Object containing YouTube API v3 and corresponding key
 
@@ -17,17 +18,17 @@ class YoutubeThing:
         printSearchResults(data)
         getVideoDetails(video_id)
         printVideoDetails(data)
-    '''
+    """
 
 
     def __init__(self):
-        '''
+        """
         DESCRIPTION
             Constructor for YoutubeThing object.
 
         PARAMETERS
             None
-        '''
+        """
         self.api_key = cfg['youtube_api']['api_key']
         self.api = build(
         'youtube',
@@ -37,7 +38,7 @@ class YoutubeThing:
 
 
     def getSearchResults(self, query, num_results=2):
-        '''
+        """
         DESCRIPTION
             Utilizes Youtube API to search a query and returns the results.
 
@@ -47,7 +48,7 @@ class YoutubeThing:
 
         OUTPUTS
             response - (json) response from API query
-        '''
+        """
         request = self.api.search().list(
             part = 'snippet',
             q=query,
@@ -59,7 +60,7 @@ class YoutubeThing:
 
 
     def printSearchResults(self, data):
-        '''
+        """
         DESCRIPTION
             Prints search results from getSearchResults() to screen.
 .
@@ -68,7 +69,7 @@ class YoutubeThing:
 
         OUTPUTS
             None
-        '''
+        """
         items = data.get('items')
 
         for item in items:
@@ -78,7 +79,7 @@ class YoutubeThing:
 
 
     def getVideoDetails(self, video_id):
-        '''
+        """
         DESCRIPTION
             Utilizes Youtube API to get details of a specific video.
 
@@ -87,7 +88,7 @@ class YoutubeThing:
 
         OUTPUTS
             response - (json) response from API query
-        '''
+        """
         request = self.api.videos().list(
             part = 'snippet,statistics',
             id=video_id
@@ -98,7 +99,7 @@ class YoutubeThing:
 
 
     def printVideoDetails(self, data):
-        '''        
+        """        
         DESCRIPTION
             Prints results from getVideoDetails() to screen.
 
@@ -107,7 +108,7 @@ class YoutubeThing:
 
         OUTPUTS
             None
-        '''
+        """
         items = data.get('items')[0]
         snippet    = items['snippet']
         statistics = items['statistics']
