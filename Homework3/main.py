@@ -53,8 +53,6 @@ if USE_API==True:
             video_id = item['id']['videoId']
             data = yt.getVideoDetails(video_id)
 
-            #print(data['items'][0]['statistics'])
-
             # Extract desired stats from API call
             title        = data['items'][0]['snippet']['title']
             num_comments = data['items'][0]['statistics']['commentCount']
