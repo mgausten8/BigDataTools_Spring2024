@@ -160,9 +160,10 @@ cython_debug/
 #.idea/
 
 # BigDataTools_Spring2024
-Homework3/dump.rdb
-Homework3/config.yaml
-Homework3/temp.json
-Homework3/temp.png
+Homework03/dump.rdb
+Homework03/config.yaml
+Homework03/temp.json
+Homework03/temp.png
 .DS_Store
 dump.rdb
+Homework04/config.yaml
