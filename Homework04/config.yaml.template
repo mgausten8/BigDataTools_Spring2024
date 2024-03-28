@@ -1,0 +1,5 @@
+neo4j:
+  uri: <yourhost>
+  db: neo4j
+  user: neo4j
+  password: <yourpwd>
