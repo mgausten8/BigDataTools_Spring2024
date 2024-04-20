@@ -3,6 +3,9 @@ import yaml
 
 # Quick function to print number of row/col of pandas dataframe
 def getNumRowsCols(df):
+    """
+
+    """
     numRows = len(df.index)
     numCols = len(df.columns)
     return numRows,numCols
