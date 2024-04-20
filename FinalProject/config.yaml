@@ -1,5 +1,0 @@
-neo4j:
-  uri: neo4j+s://d929c292.databases.neo4j.io
-  db: neo4j
-  user: neo4j
-  password: 4wunLgbWop0jjAoM3uCw4Mdn_ErgUFrUiRx26LIMluE
