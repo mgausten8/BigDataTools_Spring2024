@@ -1,3 +1,9 @@
+## Visualizations
+
+### 1. 
+
+---
+
 ## Final Project
 
 #### Choose any Distributed Database/Technology. It can be what we discussed in class or anything of your choice.

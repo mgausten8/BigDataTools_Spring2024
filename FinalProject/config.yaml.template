@@ -3,3 +3,6 @@ neo4j:
   db: neo4j
   user: neo4j
   password: <yourpwd>
+paths:
+  data: <yourdatapath>
+  save: <yoursavepath>
