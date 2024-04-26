@@ -54,7 +54,7 @@ duration_s = frame_duration * num_frames
 clip = ImageSequenceClip(all_save_paths, fps=1/frame_duration)
 
 # Write the video to an AVI file
-clip.write_videofile(f'{data_path}/output_video.mp4', codec='libx264', fps=24)
+clip.write_videofile(f'{data_path}/out1.mp4', codec='libx264', fps=24)
 
 # Delete all image files
 for x in all_save_paths:
