@@ -11,12 +11,13 @@ data_path = config['paths']['data']
 save_path = config['paths']['save']
 
 # Load data
-data = pd.read_csv(f'{data_path}/HSall_custom_all.csv')
+data = pd.read_csv(f'{data_path}/HSall_custom.csv')
 
 # Initialize list of all image paths
 all_save_paths = []
 
 # Loop thru all congress and create figure
+print('Generating images:')
 all_congress = sorted(data['congress'].unique())
 for congress in tqdm(all_congress):
     data_tmp = data[data['congress']==congress]
@@ -35,10 +36,10 @@ for congress in tqdm(all_congress):
     plt.ylim(-1.1, 1.1)
 
     num_str = str(congress).zfill(3)
-    curr_save_path = f'{save_path}/output_{num_str}.png'
+    curr_save_path = f'{save_path}/output1_{num_str}.png'
     all_save_paths.append(curr_save_path)
 
-    ax.set_title(f'Congress {num_str}  -  {congress_year}')
+    ax.set_title(f'Year: {congress_year}  |  Congress {num_str}')
     ax.set_xlabel('Nominate dimension 1')
     ax.set_ylabel('Nominate dimension 2')
 
@@ -46,7 +47,7 @@ for congress in tqdm(all_congress):
 
     plt.clf()
 
-frame_duration = 0.165  # Amount of time you see each image
+frame_duration = 0.1  # Amount of time you see each image
 num_frames = len(all_save_paths)  # Number of images (frames)
 duration_s = frame_duration * num_frames
 
