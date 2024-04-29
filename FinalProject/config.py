@@ -67,3 +67,5 @@ def quickCypher(neo4jDriver, query, verbose=False):
         if verbose==True:
             for record in result:
                 print(record)
+    if verbose==False:
+        return result

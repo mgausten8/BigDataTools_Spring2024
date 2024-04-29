@@ -1,8 +1,9 @@
 import config as cfg
 import pandas as pd
-from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
+
+USE_NEO4J = False
 
 # Load config file and identify file paths
 config = cfg.loadConfig()
@@ -10,7 +11,10 @@ data_path = config['paths']['data']
 save_path = config['paths']['save']
 
 # Load data
-data = pd.read_csv(f'{data_path}/HSall_custom.csv')
+if USE_NEO4J:
+
+else:
+    data = pd.read_csv(f'{data_path}/HSall_custom.csv')
 
 # Quick functions to compute 1st and 3rd quartiles
 def q1(x):
@@ -49,7 +53,7 @@ ub_S     = np.array(data_agg_S['prob_nom-ub'])
 
 all_congress = np.array(sorted(data['congress'].unique()))
 
-plt.figure(figsize=(18, 6))
+plt.figure(figsize=(15, 5))
 plt.plot(all_congress, median_H, label='House')
 plt.fill_between(all_congress, lb_H, ub_H, alpha=0.3)
 plt.plot(all_congress, median_S, label='Senate')
