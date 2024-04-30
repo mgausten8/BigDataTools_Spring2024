@@ -5,7 +5,7 @@ AUTHOR: Matt Austen
 DATE:   29 Apr 2024
 
 DESCRIPTION
-    This script plots the NOMINATE score of all members of Congress (both 
+    This script plots the NOMINATE scores of all members of Congress (both 
     chambers) over time. A plot is generated for each Congress from the 1st in 
     1789 to the current in 2024. The color is determined by the average NOMINATE
     dimension 1 score of each member's respective party.

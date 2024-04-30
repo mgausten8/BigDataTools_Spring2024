@@ -2,13 +2,19 @@
 part3_PartyMapping.py
 ---------------------
 AUTHOR: Matt Austen
-DATE:   29 Apr 2024
+DATE:   02 May 2024
 
 DESCRIPTION
-    Todo
+    This script calculated and mean and standard deviation of selected sets of
+    legislators' Nominate scores (dimension 1 only) and plots normal curves
+    aggregated over certain parties. Specifcally, the script plots the Democratic
+    and Republican party of modern day AND the Federalist and Democratic 
+    Republican parties of approx. 1800. Three sessions of congress are used for
+    each party (i.e. Federalist Party is represented by Congress 5, 6, and 7).
+
 
 OUTPUT
-    PNG file of ...
+    PNG file of party normal curve comparisons of nominate scores
 """
 
 import config as cfg
@@ -32,8 +38,7 @@ if USE_NEO4J:
     # Get neo4j connection
     driver = cfg.getNeo4jConnection()
 
-    # Generate query for output2
-    #   Need congress, chamber, prob_nom
+    # Generate query for output3
     query = '''MATCH (m:Member)-[:MEMBER_OF]->(p:Party)
     MATCH (m:Member)-[:SERVED_DURING]->(c:Congress)
     RETURN c.congress AS congress,
@@ -51,24 +56,23 @@ if USE_NEO4J:
 else:
     data = pd.read_csv(f'{data_path}/HSall_custom.csv')
 
-data_old = data[data['congress'].isin(range(4, 15))]
-data_new = data[data['congress'].isin(range(108, 119))]
+# Capture dataframes consisting of desired Congresses
+data_old = data[data['congress'].isin(range(5, 8))]      # Congress 5,6,7
+data_new = data[data['congress'].isin(range(116, 119))]  # Congress 116,117,118
 
-print('Parties of first decade of Congress:')
-print(data_old['party_name'].unique())
-print('Parties of most recent decade of Congress:')
-print(data_new['party_name'].unique())
-
+# Calculate stats of Congress 5-7
 stdev_DR = data_old['nominate_dim1'][data_old['party_name']=='Democrat-Republican'].std()
 mean_DR  = data_old['nominate_dim1'][data_old['party_name']=='Democrat-Republican'].mean()
 stdev_Fd = data_old['nominate_dim1'][data_old['party_name']=='Federalist'].std()
 mean_Fd  = data_old['nominate_dim1'][data_old['party_name']=='Federalist'].mean()
 
+# Calculate stats of Congress 116-118
 stdev_D = data_new['nominate_dim1'][data_new['party_name']=='Democrat'].std()
 mean_D  = data_new['nominate_dim1'][data_new['party_name']=='Democrat'].mean()
 stdev_R = data_new['nominate_dim1'][data_new['party_name']=='Republican'].std()
 mean_R  = data_new['nominate_dim1'][data_new['party_name']=='Republican'].mean()
 
+# Function that computes x,y coordinates of normal curve given std_dev and mean
 def calcXYnorm(std_dev, mean):
     x = np.linspace(mean - 4*std_dev, mean + 4*std_dev, 1000)
     y = (1/(std_dev * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((x - mean) / std_dev) ** 2)
@@ -79,27 +83,26 @@ x_Fd,y_Fd = calcXYnorm(stdev_Fd, mean_Fd)
 x_D,y_D = calcXYnorm(stdev_D, mean_D)
 x_R,y_R = calcXYnorm(stdev_R, mean_R)
 
-plt.plot(x_D, y_D, color='#0000FF', label='Democrat')
-plt.fill_between(x_D, y_D, color='#0000FF', alpha=0.1)
+# Generate Democrat curve (modern day)
+plt.plot(x_D, y_D, ':', color='blue', label='Democrat')
+plt.fill_between(x_D, y_D, color='blue', alpha=0.1)
 
-plt.plot(x_R, y_R, color='#FF0000', label='Republican')
-plt.fill_between(x_R, y_R, color='#FF0000', alpha=0.1)
+# Generate Republican curve (modern day)
+plt.plot(x_R, y_R, ':', color='red', label='Republican')
+plt.fill_between(x_R, y_R, color='red', alpha=0.1)
 
-plt.plot(x_DR, y_DR, color='#007FFF', label='Democratic Republican')
-plt.fill_between(x_DR, y_DR, color='#007FFF', alpha=0.4)
+# Generate Democratic Republican curve (past)
+plt.plot(x_DR, y_DR, color='cyan', label='Dem. Republican')
+plt.fill_between(x_DR, y_DR, color='cyan', alpha=0.4)
 
-plt.plot(x_Fd, y_Fd, color='#FF7F00', label='Federalist')
-plt.fill_between(x_Fd, y_Fd, color='#FF7F00', alpha=0.4)
-
+# Generate Federalist curve (past)
+plt.plot(x_Fd, y_Fd, color='magenta', label='Federalist')
+plt.fill_between(x_Fd, y_Fd, color='magenta', alpha=0.4)
 
 plt.xlim(-1, 1)
-plt.title('Normal Distribution')
-plt.xlabel('X')
+plt.title('Party Nominate Score Comparison - 1800s vs Present')
+plt.xlabel('Nominate Economic Dimension')
 plt.ylabel('Probability Density')
 plt.legend()
-plt.grid(True)
-plt.show()
-
-
-
-
+plt.grid()
+plt.savefig(f'{save_path}/output3.png', dpi=300)
