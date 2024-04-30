@@ -1,9 +1,24 @@
+"""
+part3_PartyMapping.py
+---------------------
+AUTHOR: Matt Austen
+DATE:   29 Apr 2024
+
+DESCRIPTION
+    Todo
+
+OUTPUT
+    PNG file of ...
+"""
+
 import config as cfg
 import pandas as pd
+from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
 
-USE_NEO4J = False
+# True: load data from Neo4j database, False: Load from CSV
+USE_NEO4J = True
 
 # Load config file and identify file paths
 config = cfg.loadConfig()
@@ -12,7 +27,27 @@ save_path = config['paths']['save']
 
 # Load data
 if USE_NEO4J:
+    print('Loading data from neo4j...')
 
+    # Get neo4j connection
+    driver = cfg.getNeo4jConnection()
+
+    # Generate query for output2
+    #   Need congress, chamber, prob_nom
+    query = '''MATCH (m:Member)-[:MEMBER_OF]->(p:Party)
+    MATCH (m:Member)-[:SERVED_DURING]->(c:Congress)
+    RETURN c.congress AS congress,
+           m.nominate_dim1 AS nominate_dim1,
+           p.party_name AS party_name;'''
+
+    # Execute query
+    with driver.session() as session:
+        result = session.run(query)
+        tmp = [record.values() for record in tqdm(result)]
+        data = pd.DataFrame(tmp, columns=result.keys())
+
+    # Close connection to neo4j
+    driver.close()
 else:
     data = pd.read_csv(f'{data_path}/HSall_custom.csv')
 

@@ -1,9 +1,24 @@
+"""
+part2_LineGraph.py
+------------------
+AUTHOR: Matt Austen
+DATE:   29 Apr 2024
+
+DESCRIPTION
+    Todo
+
+OUTPUT
+    PNG file of Aggregate NOMINATE dimension 1 scores over time
+"""
+
 import config as cfg
 import pandas as pd
+from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
 
-USE_NEO4J = False
+# True: load data from Neo4j database, False: Load from CSV
+USE_NEO4J = True
 
 # Load config file and identify file paths
 config = cfg.loadConfig()
@@ -12,7 +27,27 @@ save_path = config['paths']['save']
 
 # Load data
 if USE_NEO4J:
+    print('Loading data from neo4j...')
 
+    # Get neo4j connection
+    driver = cfg.getNeo4jConnection()
+
+    # Generate query for output2
+    #   Need congress, chamber, prob_nom
+    query = '''MATCH (m:Member)-[:SERVED_IN]->(h:Chamber)
+    MATCH (m:Member)-[:SERVED_DURING]->(c:Congress)
+    RETURN c.congress AS congress,
+           m.prob_nom AS prob_nom,
+           h.chamber AS chamber;'''
+
+    # Execute query
+    with driver.session() as session:
+        result = session.run(query)
+        tmp = [record.values() for record in tqdm(result)]
+        data = pd.DataFrame(tmp, columns=result.keys())
+
+    # Close connection to neo4j
+    driver.close()
 else:
     data = pd.read_csv(f'{data_path}/HSall_custom.csv')
 
@@ -53,13 +88,23 @@ ub_S     = np.array(data_agg_S['prob_nom-ub'])
 
 all_congress = np.array(sorted(data['congress'].unique()))
 
-plt.figure(figsize=(15, 5))
-plt.plot(all_congress, median_H, label='House')
-plt.fill_between(all_congress, lb_H, ub_H, alpha=0.3)
-plt.plot(all_congress, median_S, label='Senate')
-plt.fill_between(all_congress, lb_S, ub_S, alpha=0.3)
-plt.xlim(min(all_congress), max(all_congress))
+fig,ax = plt.subplots(1, 2)
+fig.suptitle('Aggregated NOMINATE scores')
+ax[0].plot(all_congress, median_H, label='House')
+ax[0].fill_between(all_congress, lb_H, ub_H, alpha=0.3)
+ax[0].set(xlabel='Congress', ylabel='Probability')
+plt.xlabel('Congress')
+
+ax[1].plot(all_congress, median_S, label='Senate')
+ax[1].fill_between(all_congress, lb_S, ub_S, alpha=0.3)
 plt.ylim(40, 100)
+#ax[0].xlim(min(all_congress), max(all_congress))
+#ax[1].xlim(min(all_congress), max(all_congress))
+#ax[0].ylim(40, 100)
+#ax[1].ylim(40, 100)
+plt.setp(ax, ylim=(40, 100))
+
+
 plt.xlabel('Congress')
 plt.ylabel('Probability Member votes consistent with own Party')
 plt.title('House of Representatives')

@@ -1,3 +1,19 @@
+"""
+part1_ScatterPlot.py
+--------------------
+AUTHOR: Matt Austen
+DATE:   29 Apr 2024
+
+DESCRIPTION
+    This script plots the NOMINATE score of all members of Congress (both 
+    chambers) over time. A plot is generated for each Congress from the 1st in 
+    1789 to the current in 2024. The color is determined by the average NOMINATE
+    dimension 1 score of each member's respective party.
+
+OUTPUT
+    MP4 file of Congress NOMINATE scores over time
+"""
+
 import config as cfg
 import pandas as pd
 from tqdm import tqdm
@@ -6,7 +22,7 @@ import os
 from moviepy.editor import ImageSequenceClip
 
 # True: load data from Neo4j database, False: Load from CSV
-USE_NEO4J = False
+USE_NEO4J = True
 
 # Load config file and identify file paths
 config = cfg.loadConfig()
@@ -20,25 +36,22 @@ if USE_NEO4J:
     # Get neo4j connection
     driver = cfg.getNeo4jConnection()
 
-    query = '''MATCH (m:Member)
-    MATCH (c:Congress)
-    MATCH (p:Party)
-    RETURN m.congress, m.nominate_dim1, m.nominate_dim2, c.congress, p.party_code, p.nominate_dim1_mean;
-    '''
+    # Generate query for output1
+    query = '''MATCH (m:Member)-[:MEMBER_OF]->(p:Party)
+    MATCH (m:Member)-[:SERVED_DURING]->(c:Congress)
+    RETURN c.congress AS congress,
+           m.nominate_dim1 AS nominate_dim1,
+           m.nominate_dim2 AS nominate_dim2,
+           p.nominate_dim1_mean AS nominate_dim1_mean;'''
 
+    # Execute query
     with driver.session() as session:
         result = session.run(query)
-        for i,record in enumerate(result):
-            print(i,record)
-        #tmp = [record.values() for record in tqdm(result)]
-        #data = pd.DataFrame(tmp, columns=result.keys())
+        tmp = [record.values() for record in tqdm(result)]
+        data = pd.DataFrame(tmp, columns=result.keys())
 
-    #print(tmp)
-
+    # Close connection to neo4j
     driver.close()
-
-    import sys
-    sys.exit()
 else:
     data = pd.read_csv(f'{data_path}/HSall_custom.csv')
 
