@@ -31,6 +31,7 @@ Nominate scores have been widely used in political science research to study leg
 
 This script plots the NOMINATE scores of all members of Congress (both chambers) over time. A plot is generated for each Congress from the 1st in 1789 to the current in 2024. The color is determined by the average NOMINATE dimension 1 score of each member's respective party.
 
+![output1](output/output1.mp4)
 
 ### Part 2 - Voting Probability Over Time
 
@@ -38,11 +39,13 @@ This script plots the NOMINATE scores of all members of Congress (both chambers)
 
 blah blah blah
 
-![test2](output/output2.png)
+![output2](output/output2.png)
 
 ### Part 3 - Probability Density Party Comparison
 
 `python part3_PartyMapping.py`
 
-![test3](output/output2.png)
+blah blah blah
+
+![output3](output/output3.png)
 
