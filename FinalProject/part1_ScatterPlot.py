@@ -14,12 +14,15 @@ OUTPUT
     MP4 file of Congress NOMINATE scores over time
 """
 
+import time
 import config as cfg
 import pandas as pd
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import os
 from moviepy.editor import ImageSequenceClip
+
+start_time = time.time()
 
 # True: load data from Neo4j database, False: Load from CSV
 USE_NEO4J = True
@@ -103,4 +106,9 @@ clip.write_videofile(f'{save_path}/output1.mp4', codec='libx264', fps=24)
 for x in all_save_paths:
     os.remove(x)
 
-print(f'Output file length: {duration_s} s')
+print(f'Output file length: {duration_s}s')
+
+end_time = time.time()
+run_time = end_time - start_time
+
+print(f'Run time: {run_time}s')

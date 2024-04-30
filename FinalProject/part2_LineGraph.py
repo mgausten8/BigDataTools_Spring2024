@@ -16,11 +16,14 @@ OUTPUT
     PNG file showing average probability of voting with own party over time
 """
 
+import time
 import config as cfg
 import pandas as pd
 from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
+
+start_time = time.time()
 
 # True: load data from Neo4j database, False: Load from CSV
 USE_NEO4J = True
@@ -107,3 +110,8 @@ ax[1].grid()
 ax[1].legend()
 plt.setp(ax, xlim=(min(all_congress), max(all_congress)), ylim=(40, 100))
 plt.savefig(f'{save_path}/output2.png', dpi=300)
+
+end_time = time.time()
+run_time = end_time - start_time
+
+print(f'Run time: {run_time}s')
