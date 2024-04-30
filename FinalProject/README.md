@@ -8,6 +8,8 @@
 
 This project uses data from [Voteview.com](https://voteview.com/) to make visualizations of the United States Congress ideology since the 1st Congress in the late 18th century. The data is aggregated and processed using **python** and stored in a **neo4j** database. A key component of the data is "NOMINATE scores", which are metrics that attempt to quantify political ideology. 
 
+More information on VoteView can be found [here](https://voteview.com/about).
+
 #### NOMINATE Scores
 
 In political data analysis, Nominate scores, also known as NOMINATE (NOMINAl Three-step Estimation) scores, are a method used to estimate the ideological positions of legislators based on their voting behavior. These scores provide a quantitative measure of a legislator's political ideology, in VoteView's case, along 2 dimensions:
