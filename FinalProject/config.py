@@ -1,18 +1,18 @@
-from neo4j import GraphDatabase
 import yaml
+from neo4j import GraphDatabase
 
 # Quick function to print number of row/col of pandas dataframe
 def getNumRowsCols(df):
     """
     DESCRIPTION
-        todo
+        Function that returns number of rows and columns of pandas dataframe
 
     INPUTS
-        df - todo
+        df - Pandas dataframe
 
     OUTPUTS
-        numRows - todo
-        numCols - todo
+        numRows - (num) number of rows of df
+        numCols - (num) number of columns of df
     """
     numRows = len(df.index)
     numCols = len(df.columns)
@@ -21,12 +21,9 @@ def getNumRowsCols(df):
 def loadConfig():
     """
     DESCRIPTION
-        todo
-
-    OUTPUTS
-        todo
+        Loads configuration stored within config.yaml
     """
-    with open('config.yaml', 'r') as file:
+    with open('config/config.yaml', 'r') as file:
         return yaml.safe_load(file)
     
 config = loadConfig()
@@ -34,10 +31,10 @@ config = loadConfig()
 def getNeo4jConnection():
     """
     DESCRIPTION
-        todo
+        Creates neo4j connection given parameters listed in config.yaml
 
     OUTPUTS
-        todo
+        Neo4j driver object
     """
     return GraphDatabase.driver(
         config['neo4j']['uri'],
@@ -46,26 +43,10 @@ def getNeo4jConnection():
 def clearDatabase(driver):
     """
     DESCRIPTION
-        todo
+        Clears database connected to 'driver'
 
     INPUTS
-        todo
+        Neo4j driver object
     """
     with driver.session() as session:
         session.run('MATCH (n) DETACH DELETE n')
-
-def quickCypher(neo4jDriver, query, verbose=False):
-    """
-    DESCRIPTION
-        todo
-
-    INPUTS
-        todo
-    """
-    with neo4jDriver.session() as session:
-        result = session.run(query)
-        if verbose==True:
-            for record in result:
-                print(record)
-    if verbose==False:
-        return result
